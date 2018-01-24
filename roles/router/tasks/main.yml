@@ -1,0 +1,46 @@
+---
+#
+# Owner: Ali Jabir
+# Email: syedalijabir@gmail.com
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Set router iterface IP
+  vyos_config:
+    lines:
+      - set interfaces ethernet {{ iface.router }} address {{ router_ifc.ip }}/{{ router_ifc.mask }}
+    provider: "{{ prov }}"
+    save: yes
+  connection: local
+
+- name: Add static route to other VPC network
+  vyos_config:
+    lines:
+        - set protocols static route {{ dest_network }} next-hop {{ dest_hop }}
+    provider: "{{ prov }}"
+    save: yes
+  connection: local
+
+- name: Configure DHCP
+  vyos_config:
+    lines:
+      - set interface ethernet {{ iface.vpc }} address {{ vpc_dhcp.ip }}/{{ vpc_dhcp.mask }}
+      - set service dns forwarding listen-on {{ iface.vpc }}
+      - set service dhcp-server shared-network-name {{ vpc_dhcp.name }} authoritative enable
+      - set service dhcp-server shared-network-name {{ vpc_dhcp.name }} subnet {{ vpc_dhcp.network }}/{{ vpc_dhcp.mask }} default-router {{ vpc_dhcp.ip }}
+      - set service dhcp-server shared-network-name {{ vpc_dhcp.name }} subnet {{ vpc_dhcp.network }}/{{ vpc_dhcp.mask }} dns-server {{ vpc_dhcp.ip }}
+      - set service dhcp-server shared-network-name {{ vpc_dhcp.name }} subnet {{ vpc_dhcp.network }}/{{ vpc_dhcp.mask }} lease {{ vpc_dhcp.lease_time }}
+      - set service dhcp-server shared-network-name {{ vpc_dhcp.name }} subnet {{ vpc_dhcp.network }}/{{ vpc_dhcp.mask }} start {{ vpc_dhcp.start }} stop {{ vpc_dhcp.end }}
+    provider: "{{ prov }}"
+    save: yes
+  connection: local

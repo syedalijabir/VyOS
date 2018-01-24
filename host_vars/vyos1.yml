@@ -1,0 +1,47 @@
+---
+#
+# Owner: Ali Jabir
+# Email: syedalijabir@gmail.com
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+prov:
+  host: "{{ ansible_host }}"
+  username: vyos
+  password: vyos
+
+router_ifc:
+  ip: 192.168.20.1
+  network: 192.168.20.0
+  mask: 30
+
+vpc_dhcp:
+  name: net-dhcp
+  network: 192.168.12.0
+  mask: 24
+  ip: 192.168.12.1
+  lease_time: 86400
+  start: 192.168.12.100
+  end: 192.168.12.254
+
+dest_network: 192.168.14.0/24
+dest_hop: 192.168.20.2
+
+firewall:
+  name: vyos1_fw
+  def_action: accept
+  rule20:
+    rule_num: 20
+    action: drop
+    settings: icmp type-name echo-request
+    protocol: icmp

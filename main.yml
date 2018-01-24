@@ -1,0 +1,41 @@
+---
+#
+# Owner: Ali Jabir
+# Email: syedalijabir@gmail.com
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Play1
+- hosts: vyos_group
+  gather_facts: yes
+  
+  roles:
+    - common
+    - router
+
+# Play2
+- hosts: vyos1
+  gather_facts: no
+
+  tasks:
+    - name: Set firewall on Vyos1 to stop ICMP flow
+      vyos_config:
+        lines:
+          - set firewall name {{ firewall.name }} default-action {{ firewall.def_action }}
+          - set firewall name {{ firewall.name }} rule {{ firewall.rule20.rule_num }} action {{ firewall.rule20.action }}
+          - set firewall name {{ firewall.name }} rule {{ firewall.rule20.rule_num }} {{ firewall.rule20.settings }}
+          - set firewall name {{ firewall.name }} rule {{ firewall.rule20.rule_num }} protocol {{ firewall.rule20.protocol }}
+          - set interfaces ethernet {{ iface.vpc }} firewall in name {{ firewall.name }}
+        provider: "{{ prov }}"
+        save: yes
+      connection: local
